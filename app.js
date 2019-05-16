@@ -53,6 +53,11 @@ app.use(async (ctx, next) => {
 })
 
 // routes
+app.use(async (ctx,next)=>{
+  ctx.set("Access-Control-Allow-Origin", "*");
+  ctx.set("Content-Type", "application/json;charset=utf-8");
+  await next();
+})
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 
