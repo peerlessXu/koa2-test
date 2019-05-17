@@ -5,7 +5,7 @@ const sql = require('../utils/sql')
 
 router.get('/', async (ctx, next) => {
 
-  let mysql = sql.QUERY_TABLE('og_user'), val = ['username', 'password']
+  let mysql = sql.QUERY_TABLE('user'), val = ['username', 'password']
   // query.query(mysql,val).then(res=>{
   //   console.log(res)
   //   ctx.body=res[0];
