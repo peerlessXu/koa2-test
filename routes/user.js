@@ -7,9 +7,6 @@ const User = require('../controllers/userController')
 
 router.prefix('/user')
 
-router.get('/', async function (ctx, next) {
-})
-
 
 // 登录
 router.post('/login', User.login)
@@ -18,7 +15,10 @@ router.post('/login', User.login)
 router.post('/register', User.create)
 
 // 根据Id查询用户
-router.get('/:id',User.info)
+router.get('/:id', User.info)
+
+// 根据Id更新用户
+router.put('/:id', User.update)
 
 
 module.exports = router

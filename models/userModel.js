@@ -55,7 +55,7 @@ class UserModel {
             }
         })
     }
-    
+
     /**
      * 查询用户信息
      * @param username  姓名
@@ -67,9 +67,22 @@ class UserModel {
                 username
             }
         })
-        }
+    }
 
-        
-        };
-    
+    /**
+         * 更新用户信息
+         * @param username  姓名
+          * @returns {Promise.<*>}
+         */
+    static async update(id, data) {
+        return await User.update(data, {
+            where: {
+                id
+            },
+            fields: ['mobile', 'email', 'truename', 'gender']
+        });
+    }
+
+};
+
 module.exports = UserModel

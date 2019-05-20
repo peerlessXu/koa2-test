@@ -7,6 +7,9 @@ const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const path = require('path')
 
+const jwt = require('koa-jwt')
+const secret = require('./config/secret')
+
 const index = require('./routes/index')
 const user = require('./routes/user')
 
@@ -17,6 +20,20 @@ onerror(app)
 
 // middlewares
 app.use(cors());
+
+// 此接口列表，过滤不用jwt验证
+app.use(jwt({secret: secret.sign}).unless({
+  path: [
+     
+      // 注册
+      /^\/user\/register/,
+      // 登录
+      /^\/user\/login/,
+      
+  ]
+}))
+
+
 app.use(bodyparser({
   enableTypes: ['json', 'form', 'text']
 }))

@@ -1,4 +1,8 @@
 const UserModel = require('../models/UserModel');
+const jwt = require('jsonwebtoken');
+const secret = require('../config/secret');
+const bcrypt = require('bcryptjs');
+
 
 class User {
     /**
@@ -50,16 +54,29 @@ class User {
 
             try {
 
+                // 加密密码
+                const salt = bcrypt.genSaltSync();
+                const hash = bcrypt.hashSync(params.password, salt);
+                params.password = hash;
+
                 // 创建用户
                 await UserModel.create(params);
                 const newUser = await UserModel.username(params.username)
 
+                // 签发token
+                const userToken = {
+                    username: newUser.username,
+                    id: newUser.id
+                }
+
+                // 储存token失效有效期1小时
+                const token = jwt.sign(userToken, secret.sign, { expiresIn: '1h' });
 
                 ctx.response.status = 200;
                 ctx.body = {
                     code: 200,
                     message: `创建用户成功`,
-                    data: newUser
+                    data: token
                 }
 
             } catch (err) {
@@ -193,7 +210,15 @@ class User {
 
 
         // 判断前端传递的用户密码是否与数据库密码一致
-        if (password === userDetail.password) {
+        if (bcrypt.compareSync(password, userDetail.password)) {
+
+            // 用户token
+            const userToken = {
+                username: userDetail.username,
+                id: userDetail.id
+            }
+            // 签发token
+            const token = jwt.sign(userToken, secret.sign, { expiresIn: '1h' });
 
             ctx.response.status = 200;
             ctx.body = {
@@ -203,6 +228,7 @@ class User {
                     id: userDetail.id,
                     username: userDetail.username,
                     email: userDetail.email,
+                    token: token
                 }
             }
 
@@ -221,8 +247,7 @@ class User {
      *
      * @returns 用户列表数据
      */
-    static
-        async list(ctx) {
+    static async list(ctx) {
         try {
             const data = await UserModel.findAllUserList();
 
@@ -240,6 +265,65 @@ class User {
             }
         }
     }
+
+
+    /**
+     * 编辑用户信息
+     * @param ctx
+     *
+     * @returns 用户信息
+     */
+
+
+    static async update(ctx) {
+        let { id } = ctx.params;
+        // 检测是否传入ID
+        if (!id) {
+            ctx.response.status = 412;
+            ctx.body = {
+                code: 412,
+                message: `ID不能为空`
+            }
+
+            return false;
+        }
+
+        if (isNaN(id)) {
+            ctx.response.status = 412;
+            ctx.body = {
+                code: 412,
+                message: `请传入正确的ID`
+            }
+
+            return false;
+        }
+        let { mobile, email, truename, gender } = ctx.request.body;
+        let params = {
+            mobile,
+            email,
+            truename,
+            gender
+        }
+        try {
+            await UserModel.update(id, params);
+            const userInfo = await UserModel.findUserById(id);
+            ctx.response.status = 200;
+            ctx.body = {
+                code: 200,
+                message: "编辑成功",
+                data: userInfo
+            }
+        } catch (err) {
+            ctx.response.status = 500;
+            ctx.body = {
+                code: 500,
+                message: err
+            }
+        }
+
+    }
+
+
 }
 
 module.exports = User
