@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         password: DataTypes.STRING,
-        mobile: DataTypes.INTEGER,
+        mobile: DataTypes.STRING,
         email: DataTypes.STRING,
         wallet: DataTypes.STRING,
         truename: DataTypes.STRING,
